@@ -8,7 +8,7 @@ Este proyecto es una herramienta visual e interactiva que representa gráficamen
 
 Este repositorio se usa únicamente para publicar el proyecto mediante **GitHub Pages**:
 
-👉 [https://arb369.github.io/modelo-areas-factorizacion/](https://arb369.github.io/modelo-areas-factorizacion/)
+[https://arb369.github.io/modelo-areas-factorizacion/](https://arb369.github.io/modelo-areas-factorizacion/)
 
 ## Sobre la actividad
 
