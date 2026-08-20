@@ -39,4 +39,4 @@ Este repositorio tiene fines exclusivamente académicos y de publicación median
 
 ## Autor
 
-Proyecto desarrollado por [ARB369](https://github.com/ARB369) para la asignatura de Cálculo 2.
+Proyecto desarrollado por [ARB369]([url](https://github.com/ARB369)) para la asignatura de Cálculo 2.
