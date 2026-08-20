@@ -34,8 +34,4 @@ Si existen, se arma el rectángulo y se muestra la factorización **(a + m)(a + 
 
 ## Nota
 
-Este repositorio tiene fines exclusivamente académicos y de publicación mediante GitHub Pages; no está pensado como un proyecto de software para producción ni mantenimiento continuo.
-
-## Autor
-
-Proyecto desarrollado por [ARB369]([url](https://github.com/ARB369)) para la asignatura de Cálculo 2.
+Este repositorio tiene fines exclusivamente académicos y de publicación mediante GitHub Pages por eso esta escrito en un mismo archivo; no está pensado como un proyecto de software para producción ni mantenimiento continuo.
