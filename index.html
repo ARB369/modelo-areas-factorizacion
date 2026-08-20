@@ -3,13 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
 <title>Modelo de Áreas para Factorizar</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  h1 { margin: 0 0 8px; }
+  .subtitle { margin: 0 0 22px; color: #4b5563; }
+  .panel {
+    background: white;
+    border: 1px solid #d9dee5;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: end;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 700;
+  }
+  input {
+    width: 120px;
+    padding: 10px 12px;
+    border: 1px solid #b8c0cc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  button {
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button:hover { background: #1d4ed8; }
+  .formula {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 18px;
+    text-align: center;
+  }
+  .status {
+    padding: 13px 16px;
+    border-radius: 9px;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+  .success { background: #ecfdf5; border: 1px solid #86efac; color: #166534; }
+  .warning { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; }
+  .counts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .count-card {
+    border: 1px solid #d9dee5;
+    border-radius: 10px;
+    padding: 14px;
+    background: #fafafa;
+  }
+  .count-card strong { display: block; font-size: 22px; margin-top: 5px; }
+  .board-wrap {
+    overflow-x: auto;
+    padding: 18px 6px 6px;
+  }
+  svg {
+    display: block;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #d9dee5;
+    border-radius: 10px;
+  }
+  .tile-a2 { fill: #f59e0b; stroke: #92400e; stroke-width: 2; }
+  .tile-a { fill: #e5e7eb; stroke: #4b5563; stroke-width: 2; }
+  .tile-one { fill: #60a5fa; stroke: #1e3a8a; stroke-width: 2; }
+  .tile-text { font-weight: 700; fill: #111827; text-anchor: middle; dominant-baseline: middle; }
+  .dimension { stroke: #111827; stroke-width: 2; }
+  .dimension-text { font-weight: 700; fill: #111827; text-anchor: middle; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 22px; height: 22px; border: 1px solid #555; border-radius: 4px; }
+  .notes { line-height: 1.55; color: #374151; }
+  @media (max-width: 700px) {
+    .counts { grid-template-columns: 1fr; }
+    .container { padding: 14px; }
+  }
+</style>
 </head>
 <body>
 <div class="container">
   <h1>Modelo de áreas para factorizar</h1>
   <p class="subtitle">Explora polinomios de la forma <strong>a² + pa + q</strong> con p y q enteros positivos.</p>
+
 
   <section class="panel">
     <div class="controls">
@@ -24,8 +134,10 @@
       <button id="calculate">Construir modelo</button>
     </div>
 
+
     <div id="formula" class="formula"></div>
     <div id="status"></div>
+
 
     <div class="counts">
       <div class="count-card">Ficha cuadrada de área <strong>a²: <span id="countA2">1</span></strong></div>
@@ -33,6 +145,7 @@
       <div class="count-card">Cuadrados pequeños de área <strong>1: <span id="countOne">0</span></strong></div>
     </div>
   </section>
+
 
   <section class="panel">
     <h2>Rectángulo de áreas</h2>
@@ -44,6 +157,7 @@
     </div>
   </section>
 
+
   <section class="panel notes">
     <h2>¿Cómo funciona?</h2>
     <p>El modelo representa el polinomio como una suma de áreas: <strong>a² + pa + q</strong>.</p>
@@ -51,6 +165,153 @@
     <p>Cuando existen, la factorización es <strong>(a + m)(a + n)</strong>. Si no existen, la simulación indica que no se puede obtener esa factorización mediante este modelo con términos enteros positivos.</p>
   </section>
 </div>
-<script src="scripts.js"></script>
+
+
+<script>
+const pInput = document.getElementById('p');
+const qInput = document.getElementById('q');
+const formula = document.getElementById('formula');
+const statusBox = document.getElementById('status');
+const countA2 = document.getElementById('countA2');
+const countA = document.getElementById('countA');
+const countOne = document.getElementById('countOne');
+const board = document.getElementById('board');
+
+
+function findFactorPair(p, q) {
+  for (let m = 1; m <= Math.sqrt(q); m++) {
+    if (q % m === 0) {
+      const n = q / m;
+      if (m + n === p) return { m, n };
+    }
+  }
+  return null;
+}
+
+
+function makeSvg(p, q, pair) {
+  const A = 150;
+  const U = 42;
+  const m = pair.m;
+  const n = pair.n;
+
+
+  const width = A + n * U;
+  const height = A + m * U;
+  const margin = 75;
+  const svgW = width + margin * 2;
+  const svgH = height + margin * 2;
+
+
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.max(svgW, 430)}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
+
+
+  // a² tile
+  s += `<rect class="tile-a2" x="${margin}" y="${margin}" width="${A}" height="${A}"/>`;
+  s += `<text class="tile-text" x="${margin + A/2}" y="${margin + A/2}" font-size="26">a²</text>`;
+
+
+  // n vertical a tiles
+  for (let j = 0; j < n; j++) {
+    const x = margin + A + j * U;
+    s += `<rect class="tile-a" x="${x}" y="${margin}" width="${U}" height="${A}"/>`;
+    s += `<text class="tile-text" x="${x + U/2}" y="${margin + A/2}" font-size="18">a</text>`;
+  }
+
+
+  // m horizontal a tiles
+  for (let i = 0; i < m; i++) {
+    const y = margin + A + i * U;
+    s += `<rect class="tile-a" x="${margin}" y="${y}" width="${A}" height="${U}"/>`;
+    s += `<text class="tile-text" x="${margin + A/2}" y="${y + U/2}" font-size="18">a</text>`;
+  }
+
+
+  // q unit tiles
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      const x = margin + A + j * U;
+      const y = margin + A + i * U;
+      s += `<rect class="tile-one" x="${x}" y="${y}" width="${U}" height="${U}"/>`;
+      s += `<text class="tile-text" x="${x + U/2}" y="${y + U/2}" font-size="15">1</text>`;
+    }
+  }
+
+
+  // Outer rectangle
+  s += `<rect x="${margin}" y="${margin}" width="${width}" height="${height}" fill="none" stroke="#111827" stroke-width="3"/>`;
+
+
+  // Base dimension
+  const baseY = margin + height + 28;
+  s += `<line class="dimension" x1="${margin}" y1="${baseY}" x2="${margin + width}" y2="${baseY}"/>`;
+  s += `<line class="dimension" x1="${margin}" y1="${baseY-6}" x2="${margin}" y2="${baseY+6}"/>`;
+  s += `<line class="dimension" x1="${margin + width}" y1="${baseY-6}" x2="${margin + width}" y2="${baseY+6}"/>`;
+  s += `<text class="dimension-text" x="${margin + width/2}" y="${baseY + 23}" font-size="18">Base = (a + ${n})</text>`;
+
+
+  // Height dimension
+  const sideX = margin - 28;
+  s += `<line class="dimension" x1="${sideX}" y1="${margin}" x2="${sideX}" y2="${margin + height}"/>`;
+  s += `<line class="dimension" x1="${sideX-6}" y1="${margin}" x2="${sideX+6}" y2="${margin}"/>`;
+  s += `<line class="dimension" x1="${sideX-6}" y1="${margin + height}" x2="${sideX+6}" y2="${margin + height}"/>`;
+  s += `<text class="dimension-text" x="${sideX-12}" y="${margin + height/2}" font-size="18" transform="rotate(-90 ${sideX-12} ${margin + height/2})">Altura = (a + ${m})</text>`;
+
+
+  s += `</svg>`;
+  return s;
+}
+
+
+function calculate() {
+  const p = Number(pInput.value);
+  const q = Number(qInput.value);
+
+
+  if (!Number.isInteger(p) || !Number.isInteger(q) || p <= 0 || q <= 0) {
+    formula.textContent = '';
+    statusBox.className = 'status warning';
+    statusBox.textContent = 'Ingresa valores enteros positivos para p y q.';
+    countA.textContent = '0';
+    countOne.textContent = '0';
+    board.innerHTML = '';
+    return;
+  }
+
+
+  formula.textContent = `a² + ${p}a + ${q}`;
+  countA.textContent = p;
+  countOne.textContent = q;
+
+
+  const pair = findFactorPair(p, q);
+
+
+  if (pair) {
+    const {m, n} = pair;
+    statusBox.className = 'status success';
+    statusBox.innerHTML = `Sí se puede formar el rectángulo. <strong>Factorización: (a + ${m})(a + ${n})</strong>.`;
+    board.innerHTML = makeSvg(p, q, pair);
+  } else {
+    statusBox.className = 'status warning';
+    statusBox.innerHTML = `No se puede formar un rectángulo cuyas dimensiones correspondan a binomios con términos enteros positivos para este caso.`;
+    board.innerHTML = `
+      <div style="padding:40px;text-align:center;border:2px dashed #d97706;border-radius:10px;">
+        <strong>No hay una pareja de enteros positivos m y n</strong>
+        <p>que cumpla simultáneamente m · n = ${q} y m + n = ${p}.</p>
+        <p>Por eso, el modelo no obtiene una factorización de la forma (a + m)(a + n) con términos enteros positivos.</p>
+      </div>`;
+  }
+}
+
+
+document.getElementById('calculate').addEventListener('click', calculate);
+[pInput, qInput].forEach(input => input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+}));
+
+
+calculate();
+</script>
 </body>
 </html>
