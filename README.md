@@ -31,7 +31,6 @@ Si existen, se arma el rectángulo y se muestra la factorización **(a + m)(a + 
 - CSS3
 - JavaScript (vanilla, sin librerías ni frameworks)
 - SVG generado dinámicamente para el diagrama de áreas
-```
 
 ## Nota
 
